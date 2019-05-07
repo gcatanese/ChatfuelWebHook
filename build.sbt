@@ -11,4 +11,5 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-http-spray-json" % "10.1.8"
 )
 
+enablePlugins(JavaAppPackaging)
 
