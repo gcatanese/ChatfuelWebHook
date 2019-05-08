@@ -37,7 +37,9 @@ object Server extends App {
   val conf = ConfigFactory.load()
 
   val host = conf.getString("myapp.server-address")
-  val port = conf.getInt("myapp.server-port")
+
+  val port: Int = sys.env.getOrElse("PORT", "8080").toInt
+  //val port = conf.getInt("myapp.server-port")
 
 
   implicit val system: ActorSystem = ActorSystem("chatfuelWebHook")
@@ -69,7 +71,7 @@ object Server extends App {
 
   val binding = Http().bindAndHandle(route, host, port)
   binding.onComplete {
-    case Success(_) => println("Success!")
+    case Success(_) => println("Started host:" + host + " port:" + port)
     case Failure(error) => println(s"Failed: ${error.getMessage}")
   }
 
