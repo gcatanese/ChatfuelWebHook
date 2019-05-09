@@ -13,8 +13,6 @@ class ServerTest extends FlatSpec with BeforeAndAfter with ScalatestRouteTest {
   println("testxxx")
 
   var server = new Server
-  server.init()
-
 
   "Get " should "be OK" in {
     Get("/chatfuelWebHook?firstname=Beppe&lastname=Catanese") ~> server.route ~> check {

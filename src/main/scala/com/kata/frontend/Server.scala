@@ -11,7 +11,7 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.stream.ActorMaterializer
 import akka.Done
-import akka.http.javadsl.ServerBinding
+import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.Directives.{host, _}
 import akka.http.scaladsl.model.StatusCodes
@@ -34,6 +34,8 @@ class Server {
   val binding : Future[ServerBinding] = null
 
   def init(): Unit = {
+
+    println("init")
 
     val conf = ConfigFactory.load()
 
@@ -58,9 +60,11 @@ class Server {
     Await.result(binding, 3.seconds)
 
     // shutdown
-    binding
-      .flatMap(_.unbind()) // trigger unbinding from the port
-      .onComplete(_ => system.terminate()) // and shutdown when done
+    println("shutdown...")
+
+//    binding
+//      .flatMap(_.unbind()) // trigger unbinding from the port
+//      .onComplete(_ => system.terminate()) // and shutdown when done
 
   }
 
@@ -91,7 +95,10 @@ class Server {
 
 }
 
-object Server extends App {
+object ServerObject extends App {
+  println("obj")
 
+  var server = new Server
+  server.init()
 
 }
