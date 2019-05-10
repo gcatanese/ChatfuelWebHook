@@ -66,9 +66,6 @@ class Server {
   implicit val implAttachment = jsonFormat2(Attachment)
   implicit val implAttachmentContainer = jsonFormat1(AttachmentContainer)
   implicit val implMessagesWithAttachments = jsonFormat1(Messages[AttachmentContainer])
-  //  implicit val implAttachmentUrl = jsonFormat(AttachmentUrl, "url")
-  //  implicit val implAttachment = jsonFormat(Attachment, "type", "payload")
-  //  implicit val implMessagesWithAttachments = jsonFormat(Messages[Attachment], "messages")
 
   def route = path("chatfuelWebHook") {
     get {
@@ -86,7 +83,7 @@ class Server {
           val text = incomingParameters.getLastUserFreeformInput
           println("text: " + text)
 
-          if (text.equals("Hi")) {
+          if (text.equalsIgnoreCase("Hi")) {
             val messages = new Messages[TextMessage](Array(new TextMessage("hello"), new TextMessage("ciao")))
 
             val json = messages.toJson
@@ -105,7 +102,7 @@ class Server {
             complete(messages)
 
 
-          } else if (text.equals("Hiya")) {
+          } else if (text.equalsIgnoreCase("Hiya")) {
             val attachmentUrl = new AttachmentUrl("https://rockets.chatfuel.com/assets/video.mp4")
             val attachment = new Attachment("video", attachmentUrl)
             var attachmentContainer = new AttachmentContainer(attachment)
@@ -115,7 +112,7 @@ class Server {
             println("json" + json)
 
             complete(messages)
-          } else if (text.equals("Audio")) {
+          } else if (text.equalsIgnoreCase("Audio")) {
             val attachmentUrl = new AttachmentUrl("https://rockets.chatfuel.com/assets/hello.mp3")
             val attachment = new Attachment("audio", attachmentUrl)
             var attachmentContainer = new AttachmentContainer(attachment)
@@ -125,7 +122,7 @@ class Server {
             println("json" + json)
 
             complete(messages)
-          } else if (text.equals("File")) {
+          } else if (text.equalsIgnoreCase("File")) {
 
             val attachmentUrl = new AttachmentUrl("https://rockets.chatfuel.com/assets/ticket.pdf")
             val attachment = new Attachment("file", attachmentUrl)
