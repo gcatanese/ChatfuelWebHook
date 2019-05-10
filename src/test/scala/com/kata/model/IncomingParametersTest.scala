@@ -9,7 +9,7 @@ class IncomingParametersTest extends FlatSpec with BeforeAndAfter {
     val map = Map("firstname" -> "Beppe", "lastname" -> "Catanese ")
     var incomingParameters: IncomingParameters = new IncomingParameters(map)
 
-    incomingParameters.getFirstname shouldBe "Beppe"
+    incomingParameters.getParameter("firstname") shouldBe "Beppe"
 
   }
 
@@ -17,25 +17,8 @@ class IncomingParametersTest extends FlatSpec with BeforeAndAfter {
     val map = Map("dummy" -> "xx")
     var incomingParameters: IncomingParameters = new IncomingParameters(map)
 
-    incomingParameters.getFirstname shouldBe ""
+    incomingParameters.getParameter("firstname") shouldBe ""
 
   }
-
-  "Lastname " should "be Catanese" in {
-    val map = Map("firstname" -> "Beppe", "lastname" -> "Catanese")
-    var incomingParameters: IncomingParameters = new IncomingParameters(map)
-
-    incomingParameters.getLastname shouldBe "Catanese"
-
-  }
-
-  it should "be empty" in {
-    val map = Map("dummy" -> "xx")
-    var incomingParameters: IncomingParameters = new IncomingParameters(map)
-
-    incomingParameters.getLastname shouldBe ""
-
-  }
-
 
 }

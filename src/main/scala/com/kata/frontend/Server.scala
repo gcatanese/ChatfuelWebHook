@@ -1,6 +1,6 @@
 package com.kata.frontend
 
-import com.kata.model.{Messages, TextMessage}
+import com.kata.model.{Attachment, AttachmentContainer, AttachmentUrl, IncomingParameters, Messages, TextMessage}
 import com.typesafe.config.ConfigFactory
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity}
 
@@ -15,23 +15,17 @@ import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.Directives.{host, _}
 import akka.http.scaladsl.model.StatusCodes
-// for JSON serialization/deserialization following dependency is required:
-// "com.typesafe.akka" %% "akka-http-spray-json" % "10.1.7"
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
 import spray.json.DefaultJsonProtocol._
 
-import scala.io.StdIn
-
 import scala.concurrent.Future
-
 import akka.http.scaladsl.model.headers._
 import akka.http.scaladsl.model._
-
 import spray.json._
 
 class Server {
 
-  val binding : Future[ServerBinding] = null
+  val binding: Future[ServerBinding] = null
 
   def init(): Unit = {
 
@@ -46,9 +40,6 @@ class Server {
     implicit val executor: ExecutionContext = system.dispatcher
     implicit val materializer: ActorMaterializer = ActorMaterializer()
 
-    implicit val implTextMessage = jsonFormat1(TextMessage)
-    implicit val implMessages = jsonFormat1(Messages)
-
     // startup
     val binding = Http().bindAndHandle(route, host, port)
     binding.onComplete {
@@ -62,14 +53,22 @@ class Server {
     // shutdown
     println("shutdown...")
 
-//    binding
-//      .flatMap(_.unbind()) // trigger unbinding from the port
-//      .onComplete(_ => system.terminate()) // and shutdown when done
+    //    binding
+    //      .flatMap(_.unbind()) // trigger unbinding from the port
+    //      .onComplete(_ => system.terminate()) // and shutdown when done
 
   }
 
   implicit val implTextMessage = jsonFormat1(TextMessage)
-  implicit val implMessages = jsonFormat1(Messages)
+  implicit val implMessages = jsonFormat1(Messages[TextMessage])
+
+  implicit val implAttachmentUrl = jsonFormat1(AttachmentUrl)
+  implicit val implAttachment = jsonFormat2(Attachment)
+  implicit val implAttachmentContainer = jsonFormat1(AttachmentContainer)
+  implicit val implMessagesWithAttachments = jsonFormat1(Messages[AttachmentContainer])
+  //  implicit val implAttachmentUrl = jsonFormat(AttachmentUrl, "url")
+  //  implicit val implAttachment = jsonFormat(Attachment, "type", "payload")
+  //  implicit val implMessagesWithAttachments = jsonFormat(Messages[Attachment], "messages")
 
   def route = path("chatfuelWebHook") {
     get {
@@ -79,15 +78,67 @@ class Server {
       }
     } ~
       post {
-        extractRequest { request =>
-          entity(as[String]) { body =>
-            //println("post Item headers: " + request.headers)
+        parameterMap { params =>
 
+          var incomingParameters: IncomingParameters = new IncomingParameters(params)
+
+          val text = incomingParameters.getLastUserFreeformInput
+
+          if (text.equals("Hi")) {
             val textMessage = new TextMessage("hello")
-            var messages = new Messages(Seq(new TextMessage("hello"), new TextMessage("ciao")))
+            val messages = new Messages[TextMessage](Array(new TextMessage("hello"), new TextMessage("ciao")))
+
+            val json = messages.toJson
+            println("json" + json)
 
             complete(messages)
+          } else if (text.equals("Hello")) {
+            val attachmentUrl = new AttachmentUrl("https://rockets.chatfuel.com/assets/welcome.png")
+            val attachment = new Attachment("image", attachmentUrl)
+            var attachmentContainer = new AttachmentContainer(attachment)
+            var messages = new Messages[AttachmentContainer](Array(attachmentContainer))
+
+            val json = messages.toJson
+            println("json" + json)
+
+            complete(messages)
+
+
+          } else if (text.equals("Hiya")) {
+            val attachmentUrl = new AttachmentUrl("https://rockets.chatfuel.com/assets/video.mp4")
+            val attachment = new Attachment("video", attachmentUrl)
+            var attachmentContainer = new AttachmentContainer(attachment)
+            var messages = new Messages[AttachmentContainer](Array(attachmentContainer))
+
+            val json = messages.toJson
+            println("json" + json)
+
+            complete(messages)
+          } else if (text.equals("Audio")) {
+            val attachmentUrl = new AttachmentUrl("https://rockets.chatfuel.com/assets/hello.mp3")
+            val attachment = new Attachment("audio", attachmentUrl)
+            var attachmentContainer = new AttachmentContainer(attachment)
+            var messages = new Messages[AttachmentContainer](Array(attachmentContainer))
+
+            val json = messages.toJson
+            println("json" + json)
+
+            complete(messages)
+          } else if (text.equals("File")) {
+
+            val attachmentUrl = new AttachmentUrl("https://rockets.chatfuel.com/assets/ticket.pdf")
+            val attachment = new Attachment("file", attachmentUrl)
+            var attachmentContainer = new AttachmentContainer(attachment)
+            var messages = new Messages[AttachmentContainer](Array(attachmentContainer))
+
+            val json = messages.toJson
+            println("json" + json)
+
+            complete(messages)
+          } else {
+            complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "POST OK"))
           }
+
         }
       }
   }

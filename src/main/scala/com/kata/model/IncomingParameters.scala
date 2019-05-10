@@ -2,27 +2,28 @@ package com.kata.model
 
 class IncomingParameters(var parameters: Map[String, String]) {
 
+  def getLastUserFreeformInput: String = {
+    getParameter("last_user_freeform_input")
+  }
+
   def getFirstname: String = {
-    var ret = ""
-
-    val firstname = parameters.get("firstname")
-
-    if (firstname.isDefined) {
-      ret = firstname.get
-    }
-    ret
+    getParameter("firstname")
   }
 
   def getLastname: String = {
-    var ret = ""
-
-    val lastname = parameters.get("lastname")
-
-    if (lastname.isDefined) {
-      ret = lastname.get
-    }
-    ret
+    getParameter("lastname")
   }
 
+  def getParameter(parameterName: String): String = {
+    var ret = ""
+
+    val parameterValue = parameters.get(parameterName)
+
+    if (parameterValue.isDefined) {
+      ret = parameterValue.get
+    }
+
+    ret
+  }
 
 }
