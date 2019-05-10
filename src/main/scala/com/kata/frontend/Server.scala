@@ -1,6 +1,6 @@
 package com.kata.frontend
 
-import com.kata.model.{Attachment, AttachmentContainer, AttachmentUrl, IncomingParameters, Messages, TextMessage}
+import com.kata.model.{Attachment, AttachmentContainer, AttachmentUrl, GetParameters, Messages, PostParameters, TextMessage}
 import com.typesafe.config.ConfigFactory
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity}
 
@@ -72,82 +72,75 @@ class Server {
 
   def route = path("chatfuelWebHook") {
     get {
-      println("get!")
       parameterMap { params =>
+        println("get: " + params)
         complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "GET OK"))
       }
     } ~
       post {
-        println("post!")
-        parameterMap { params =>
+        entity(as[String]) { body =>
+          println("post: " + body)
 
-          println("params:" + params)
+          var incomingParameters: PostParameters = new PostParameters(body)
 
-          entity(as[String]) { body =>
+          val text = incomingParameters.getLastUserFreeformInput
 
-            println("body: " + body)
-            var incomingParameters: IncomingParameters = new IncomingParameters(params)
+          if (text.equals("Hi")) {
+            val messages = new Messages[TextMessage](Array(new TextMessage("hello"), new TextMessage("ciao")))
 
-            val text = incomingParameters.getLastUserFreeformInput
+            val json = messages.toJson
+            println("json: " + json)
 
-            println("text:" + text)
+            complete(messages)
+          } else if (text.equals("Hello")) {
+            val attachmentUrl = new AttachmentUrl("https://rockets.chatfuel.com/assets/welcome.png")
+            val attachment = new Attachment("image", attachmentUrl)
+            var attachmentContainer = new AttachmentContainer(attachment)
+            var messages = new Messages[AttachmentContainer](Array(attachmentContainer))
 
-            if (text.equals("Hi")) {
-              val messages = new Messages[TextMessage](Array(new TextMessage("hello"), new TextMessage("ciao")))
+            val json = messages.toJson
+            println("json" + json)
 
-              val json = messages.toJson
-              println("json: " + json)
-
-              complete(messages)
-            } else if (text.equals("Hello")) {
-              val attachmentUrl = new AttachmentUrl("https://rockets.chatfuel.com/assets/welcome.png")
-              val attachment = new Attachment("image", attachmentUrl)
-              var attachmentContainer = new AttachmentContainer(attachment)
-              var messages = new Messages[AttachmentContainer](Array(attachmentContainer))
-
-              val json = messages.toJson
-              println("json" + json)
-
-              complete(messages)
+            complete(messages)
 
 
-            } else if (text.equals("Hiya")) {
-              val attachmentUrl = new AttachmentUrl("https://rockets.chatfuel.com/assets/video.mp4")
-              val attachment = new Attachment("video", attachmentUrl)
-              var attachmentContainer = new AttachmentContainer(attachment)
-              var messages = new Messages[AttachmentContainer](Array(attachmentContainer))
+          } else if (text.equals("Hiya")) {
+            val attachmentUrl = new AttachmentUrl("https://rockets.chatfuel.com/assets/video.mp4")
+            val attachment = new Attachment("video", attachmentUrl)
+            var attachmentContainer = new AttachmentContainer(attachment)
+            var messages = new Messages[AttachmentContainer](Array(attachmentContainer))
 
-              val json = messages.toJson
-              println("json" + json)
+            val json = messages.toJson
+            println("json" + json)
 
-              complete(messages)
-            } else if (text.equals("Audio")) {
-              val attachmentUrl = new AttachmentUrl("https://rockets.chatfuel.com/assets/hello.mp3")
-              val attachment = new Attachment("audio", attachmentUrl)
-              var attachmentContainer = new AttachmentContainer(attachment)
-              var messages = new Messages[AttachmentContainer](Array(attachmentContainer))
+            complete(messages)
+          } else if (text.equals("Audio")) {
+            val attachmentUrl = new AttachmentUrl("https://rockets.chatfuel.com/assets/hello.mp3")
+            val attachment = new Attachment("audio", attachmentUrl)
+            var attachmentContainer = new AttachmentContainer(attachment)
+            var messages = new Messages[AttachmentContainer](Array(attachmentContainer))
 
-              val json = messages.toJson
-              println("json" + json)
+            val json = messages.toJson
+            println("json" + json)
 
-              complete(messages)
-            } else if (text.equals("File")) {
+            complete(messages)
+          } else if (text.equals("File")) {
 
-              val attachmentUrl = new AttachmentUrl("https://rockets.chatfuel.com/assets/ticket.pdf")
-              val attachment = new Attachment("file", attachmentUrl)
-              var attachmentContainer = new AttachmentContainer(attachment)
-              var messages = new Messages[AttachmentContainer](Array(attachmentContainer))
+            val attachmentUrl = new AttachmentUrl("https://rockets.chatfuel.com/assets/ticket.pdf")
+            val attachment = new Attachment("file", attachmentUrl)
+            var attachmentContainer = new AttachmentContainer(attachment)
+            var messages = new Messages[AttachmentContainer](Array(attachmentContainer))
 
-              val json = messages.toJson
-              println("json" + json)
+            val json = messages.toJson
+            println("json" + json)
 
-              complete(messages)
-            } else {
-              complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "POST OK"))
-            }
-
+            complete(messages)
+          } else {
+            complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "POST OK"))
           }
+
         }
+
       }
   }
 

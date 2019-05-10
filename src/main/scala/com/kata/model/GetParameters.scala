@@ -1,6 +1,10 @@
 package com.kata.model
 
-class IncomingParameters(var parameters: Map[String, String]) {
+/**
+  * Chatfuel parameters from GET request
+  * @param parameters Something like Map("firstname" -> "Beppe", "lastname" -> "Catanese", "last_user_freeform_input" -> "Hi")
+  */
+class GetParameters(var parameters: Map[String, String]) {
 
   def getLastUserFreeformInput: String = {
     getParameter("last_user_freeform_input")

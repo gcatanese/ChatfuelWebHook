@@ -3,11 +3,11 @@ package com.kata.model
 import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
 import Matchers._
 
-class IncomingParametersTest extends FlatSpec with BeforeAndAfter {
+class GetParametersTest extends FlatSpec with BeforeAndAfter {
 
   "Firstname " should "be Beppe" in {
     val map = Map("firstname" -> "Beppe", "lastname" -> "Catanese ")
-    var incomingParameters: IncomingParameters = new IncomingParameters(map)
+    var incomingParameters: GetParameters = new GetParameters(map)
 
     incomingParameters.getParameter("firstname") shouldBe "Beppe"
 
@@ -15,7 +15,7 @@ class IncomingParametersTest extends FlatSpec with BeforeAndAfter {
 
   it should "be empty" in {
     val map = Map("dummy" -> "xx")
-    var incomingParameters: IncomingParameters = new IncomingParameters(map)
+    var incomingParameters: GetParameters = new GetParameters(map)
 
     incomingParameters.getParameter("firstname") shouldBe ""
 
