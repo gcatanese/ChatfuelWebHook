@@ -1,10 +1,13 @@
 package com.kata.model
 
+import com.typesafe.scalalogging.StrictLogging
+
 /**
   * Chatfuel parameters from POST request
+  *
   * @param body Something like firstname=Beppe&lastname=Catanese&last_user_freeform_input=File
   */
-class PostParameters(var body: String) {
+class PostParameters(var body: String) extends StrictLogging {
 
   def getLastUserFreeformInput: String = {
     getParameter("last+user+freeform+input")
@@ -43,10 +46,10 @@ class PostParameters(var body: String) {
             (k.trim -> v)
           }.toMap
 
-        println(parameters)
+        logger.info(parameters.toString())
 
       } catch {
-        case e: Exception => println("Invalid input:" + body)
+        case e: Exception => logger.warn("Invalid input:" + body)
       }
     }
 

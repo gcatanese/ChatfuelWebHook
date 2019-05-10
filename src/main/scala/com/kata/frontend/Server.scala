@@ -21,15 +21,18 @@ import spray.json.DefaultJsonProtocol._
 import scala.concurrent.Future
 import akka.http.scaladsl.model.headers._
 import akka.http.scaladsl.model._
+import com.typesafe.scalalogging.{StrictLogging, Logger}
 import spray.json._
 
-class Server {
+
+
+class Server extends StrictLogging  {
 
   val binding: Future[ServerBinding] = null
 
   def init(): Unit = {
 
-    println("init")
+    logger.info("INIT")
 
     val conf = ConfigFactory.load()
 
@@ -43,8 +46,8 @@ class Server {
     // startup
     val binding = Http().bindAndHandle(route, host, port)
     binding.onComplete {
-      case Success(_) => println("Started host:" + host + " port:" + port)
-      case Failure(error) => println(s"Failed: ${error.getMessage}")
+      case Success(_) => logger.info("Started host:" + host + " port:" + port)
+      case Failure(error) => logger.error(s"Failed: ${error.getMessage}")
     }
 
     import scala.concurrent.duration._
@@ -70,24 +73,23 @@ class Server {
   def route = path("chatfuelWebHook") {
     get {
       parameterMap { params =>
-        println("get: " + params)
         complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "GET OK"))
       }
     } ~
       post {
         entity(as[String]) { body =>
-          println("post: " + body)
+          logger.info("post: " + body)
 
           var incomingParameters: PostParameters = new PostParameters(body)
 
           val text = incomingParameters.getLastUserFreeformInput
-          println("text: " + text)
+          logger.info("text: " + text)
 
           if (text.equalsIgnoreCase("Hi")) {
             val messages = new Messages[TextMessage](Array(new TextMessage("hello"), new TextMessage("ciao")))
 
             val json = messages.toJson
-            println("json: " + json)
+            logger.info("json: " + json)
 
             complete(messages)
           } else if (text.equals("Hello")) {
@@ -97,7 +99,7 @@ class Server {
             var messages = new Messages[AttachmentContainer](Array(attachmentContainer))
 
             val json = messages.toJson
-            println("json" + json)
+            logger.info("json" + json)
 
             complete(messages)
 
@@ -109,7 +111,7 @@ class Server {
             var messages = new Messages[AttachmentContainer](Array(attachmentContainer))
 
             val json = messages.toJson
-            println("json" + json)
+            logger.info("json" + json)
 
             complete(messages)
           } else if (text.equalsIgnoreCase("Audio")) {
@@ -119,7 +121,7 @@ class Server {
             var messages = new Messages[AttachmentContainer](Array(attachmentContainer))
 
             val json = messages.toJson
-            println("json" + json)
+            logger.info("json" + json)
 
             complete(messages)
           } else if (text.equalsIgnoreCase("File")) {
@@ -130,7 +132,7 @@ class Server {
             var messages = new Messages[AttachmentContainer](Array(attachmentContainer))
 
             val json = messages.toJson
-            println("json" + json)
+            logger.info("json" + json)
 
             complete(messages)
           } else {
@@ -145,8 +147,9 @@ class Server {
 
 }
 
-object ServerObject extends App {
-  println("obj")
+object ServerObject extends App with StrictLogging {
+
+  logger.info("ServerObject..")
 
   var server = new Server
   server.init()
