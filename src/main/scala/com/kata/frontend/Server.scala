@@ -51,7 +51,7 @@ class Server {
     Await.result(binding, 3.seconds)
 
     // shutdown
-    println("shutdown...")
+    //println("shutdown...")
 
     //    binding
     //      .flatMap(_.unbind()) // trigger unbinding from the port
@@ -81,15 +81,19 @@ class Server {
         println("post!")
         parameterMap { params =>
 
+          println("params:" + params)
+
           var incomingParameters: IncomingParameters = new IncomingParameters(params)
 
           val text = incomingParameters.getLastUserFreeformInput
+
+          println("text:" + text)
 
           if (text.equals("Hi")) {
             val messages = new Messages[TextMessage](Array(new TextMessage("hello"), new TextMessage("ciao")))
 
             val json = messages.toJson
-            println("json" + json)
+            println("json: " + json)
 
             complete(messages)
           } else if (text.equals("Hello")) {
