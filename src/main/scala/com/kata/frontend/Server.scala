@@ -78,6 +78,7 @@ class Server {
       }
     } ~
       post {
+        println("post!")
         parameterMap { params =>
 
           var incomingParameters: IncomingParameters = new IncomingParameters(params)
@@ -85,7 +86,6 @@ class Server {
           val text = incomingParameters.getLastUserFreeformInput
 
           if (text.equals("Hi")) {
-            val textMessage = new TextMessage("hello")
             val messages = new Messages[TextMessage](Array(new TextMessage("hello"), new TextMessage("ciao")))
 
             val json = messages.toJson
