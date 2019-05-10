@@ -25,35 +25,35 @@ class ServerTest extends FlatSpec with BeforeAndAfter with ScalatestRouteTest {
   }
 
   "Post " should "be 2 text messages" in {
-    val body = "firstname=Beppe&lastname=Catanese&last_user_freeform_input=Hi"
+    val body = "firstname=Beppe&lastname=Catanese&last+user+freeform+input=Hi"
     Post("/chatfuelWebHook").withEntity(body) ~> server.route ~> check {
       responseAs[String] shouldEqual "{\"messages\":[{\"text\":\"hello\"},{\"text\":\"ciao\"}]}"
     }
   }
 
   it should "be an IMAGE attachment" in {
-    val body = "firstname=Beppe&lastname=Catanese&last_user_freeform_input=Hello"
+    val body = "firstname=Beppe&lastname=Catanese&last+user+freeform+input=Hello"
     Post("/chatfuelWebHook").withEntity(body) ~> server.route ~> check {
       responseAs[String] shouldEqual "{\"messages\":[{\"attachment\":{\"payload\":{\"url\":\"https://rockets.chatfuel.com/assets/welcome.png\"},\"type\":\"image\"}}]}"
     }
   }
 
   it should "be a VIDEO attachment" in {
-    val body = "firstname=Beppe&lastname=Catanese&last_user_freeform_input=Hiya"
+    val body = "firstname=Beppe&lastname=Catanese&last+user+freeform+input=Hiya"
     Post("/chatfuelWebHook").withEntity(body) ~> server.route ~> check {
       responseAs[String] shouldEqual "{\"messages\":[{\"attachment\":{\"payload\":{\"url\":\"https://rockets.chatfuel.com/assets/video.mp4\"},\"type\":\"video\"}}]}"
     }
   }
 
   it should "be an AUDIO attachment" in {
-    val body = "firstname=Beppe&lastname=Catanese&last_user_freeform_input=Audio"
+    val body = "firstname=Beppe&lastname=Catanese&last+user+freeform+input=Audio"
     Post("/chatfuelWebHook").withEntity(body) ~> server.route ~> check {
       responseAs[String] shouldEqual "{\"messages\":[{\"attachment\":{\"payload\":{\"url\":\"https://rockets.chatfuel.com/assets/hello.mp3\"},\"type\":\"audio\"}}]}"
     }
   }
 
   it should "be a FILE attachment" in {
-    val body = "firstname=Beppe&lastname=Catanese&last_user_freeform_input=File"
+    val body = "firstname=Beppe&lastname=Catanese&last+user+freeform+input=File"
     Post("/chatfuelWebHook").withEntity(body) ~> server.route ~> check {
       responseAs[String] shouldEqual "{\"messages\":[{\"attachment\":{\"payload\":{\"url\":\"https://rockets.chatfuel.com/assets/ticket.pdf\"},\"type\":\"file\"}}]}"
     }

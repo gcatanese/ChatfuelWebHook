@@ -7,7 +7,7 @@ package com.kata.model
 class GetParameters(var parameters: Map[String, String]) {
 
   def getLastUserFreeformInput: String = {
-    getParameter("last_user_freeform_input")
+    getParameter("last+user+freeform+input")
   }
 
   def getFirstname: String = {

@@ -84,6 +84,7 @@ class Server {
           var incomingParameters: PostParameters = new PostParameters(body)
 
           val text = incomingParameters.getLastUserFreeformInput
+          println("text: " + text)
 
           if (text.equals("Hi")) {
             val messages = new Messages[TextMessage](Array(new TextMessage("hello"), new TextMessage("ciao")))

@@ -6,7 +6,7 @@ import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
 class PostParametersTest extends FlatSpec with BeforeAndAfter {
 
   "Map " should "contain 3 elements" in {
-    val body = "firstname=Beppe&lastname=Catanese&last_user_freeform_input=File"
+    val body = "firstname=Beppe&lastname=Catanese&last+user+freeform+input=File"
     var incomingParameters: PostParameters = new PostParameters(body)
 
     incomingParameters.getMap(body).size shouldBe 3
@@ -14,7 +14,7 @@ class PostParametersTest extends FlatSpec with BeforeAndAfter {
   }
 
   "Firstname " should "be Beppe" in {
-    val body = "firstname=Beppe&lastname=Catanese&last_user_freeform_input=File"
+    val body = "firstname=Beppe&lastname=Catanese&last+user+freeform+input=File"
     var incomingParameters: PostParameters = new PostParameters(body)
 
     incomingParameters.getParameter("firstname") shouldBe "Beppe"
