@@ -1,6 +1,6 @@
 package com.kata.frontend
 
-import com.kata.model.{Attachment, AttachmentContainer, AttachmentUrl, GetParameters, Messages, PostParameters, TextMessage}
+import com.kata.model.{Attachment, AttachmentContainer, AttachmentUrl, ChatfuelAction, ChatfuelAttribute, Messages, TextMessage}
 import com.typesafe.config.ConfigFactory
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity}
 
@@ -21,12 +21,12 @@ import spray.json.DefaultJsonProtocol._
 import scala.concurrent.Future
 import akka.http.scaladsl.model.headers._
 import akka.http.scaladsl.model._
-import com.typesafe.scalalogging.{StrictLogging, Logger}
+import com.typesafe.scalalogging.{Logger, StrictLogging}
 import spray.json._
 
 
 
-class Server extends StrictLogging  {
+class Server extends StrictLogging with ChatfuelAction with ChatfuelAttribute {
 
   val binding: Future[ServerBinding] = null
 
@@ -70,71 +70,51 @@ class Server extends StrictLogging  {
   implicit val implAttachmentContainer = jsonFormat1(AttachmentContainer)
   implicit val implMessagesWithAttachments = jsonFormat1(Messages[AttachmentContainer])
 
-  def route = path("chatfuelWebHook") {
+  val pathStr = "chatfuelWebHook"
+
+  def route = path(pathStr) {
     get {
-      parameterMap { params =>
+      parameterSeq { params =>
+
+        var incomingParameters: RequestParameters = new RequestParameters(params.toString())
         complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "GET OK"))
       }
     } ~
       post {
-        entity(as[String]) { body =>
+        entity(as[String]) { payload =>
+
+          implicit val body = payload
           logger.info("post: " + body)
 
-          var incomingParameters: PostParameters = new PostParameters(body)
+          val userInput = getUserInput
+          val firstname = getFirstname
+          val lastname = getLastname
 
-          val text = incomingParameters.getLastUserFreeformInput
-          logger.info("text: " + text)
+          if (userInput.equalsIgnoreCase("Hi")) {
 
-          if (text.equalsIgnoreCase("Hi")) {
-            val messages = new Messages[TextMessage](Array(new TextMessage("hello"), new TextMessage("ciao")))
-
-            val json = messages.toJson
-            logger.info("json: " + json)
-
-            complete(messages)
-          } else if (text.equals("Hello")) {
-            val attachmentUrl = new AttachmentUrl("https://rockets.chatfuel.com/assets/welcome.png")
-            val attachment = new Attachment("image", attachmentUrl)
-            var attachmentContainer = new AttachmentContainer(attachment)
-            var messages = new Messages[AttachmentContainer](Array(attachmentContainer))
-
-            val json = messages.toJson
-            logger.info("json" + json)
-
+            val messages = replyWithTextMessages(Array[String]("hello " + firstname, "ciao Mr " + lastname))
             complete(messages)
 
+          } else if (userInput.equals("Hello")) {
 
-          } else if (text.equalsIgnoreCase("Hiya")) {
-            val attachmentUrl = new AttachmentUrl("https://rockets.chatfuel.com/assets/video.mp4")
-            val attachment = new Attachment("video", attachmentUrl)
-            var attachmentContainer = new AttachmentContainer(attachment)
-            var messages = new Messages[AttachmentContainer](Array(attachmentContainer))
-
-            val json = messages.toJson
-            logger.info("json" + json)
-
+            var messages = replyWithAttachments(Array[(String, String)](("image", "https://rockets.chatfuel.com/assets/welcome.png")))
             complete(messages)
-          } else if (text.equalsIgnoreCase("Audio")) {
-            val attachmentUrl = new AttachmentUrl("https://rockets.chatfuel.com/assets/hello.mp3")
-            val attachment = new Attachment("audio", attachmentUrl)
-            var attachmentContainer = new AttachmentContainer(attachment)
-            var messages = new Messages[AttachmentContainer](Array(attachmentContainer))
 
-            val json = messages.toJson
-            logger.info("json" + json)
+          } else if (userInput.equalsIgnoreCase("Hiya")) {
 
+            var messages = replyWithAttachments(Array[(String, String)](("video", "https://rockets.chatfuel.com/assets/video.mp4")))
             complete(messages)
-          } else if (text.equalsIgnoreCase("File")) {
 
-            val attachmentUrl = new AttachmentUrl("https://rockets.chatfuel.com/assets/ticket.pdf")
-            val attachment = new Attachment("file", attachmentUrl)
-            var attachmentContainer = new AttachmentContainer(attachment)
-            var messages = new Messages[AttachmentContainer](Array(attachmentContainer))
+          } else if (userInput.equalsIgnoreCase("Audio")) {
 
-            val json = messages.toJson
-            logger.info("json" + json)
-
+            var messages = replyWithAttachments(Array[(String, String)](("audio", "https://rockets.chatfuel.com/assets/hello.mp3")))
             complete(messages)
+
+          } else if (userInput.equalsIgnoreCase("File")) {
+
+            var messages = replyWithAttachments(Array[(String, String)](("file", "https://rockets.chatfuel.com/assets/ticket.pdf")))
+            complete(messages)
+
           } else {
             complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "POST OK"))
           }
