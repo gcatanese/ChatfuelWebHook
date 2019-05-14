@@ -3,11 +3,11 @@ package com.kata.model
 import org.scalatest.Matchers._
 import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
 
-class PostParametersTest extends FlatSpec with BeforeAndAfter {
+class RequestParametersTest extends FlatSpec with ChatfuelAttribute {
 
   "Map " should "contain 3 elements" in {
     val body = "firstname=Beppe&lastname=Catanese&last+user+freeform+input=File"
-    var incomingParameters: PostParameters = new PostParameters(body)
+    var incomingParameters: RequestParameters = new RequestParameters(body)
 
     incomingParameters.getMap(body).size shouldBe 3
 
@@ -15,7 +15,7 @@ class PostParametersTest extends FlatSpec with BeforeAndAfter {
 
   "Firstname " should "be Beppe" in {
     val body = "firstname=Beppe&lastname=Catanese&last+user+freeform+input=File"
-    var incomingParameters: PostParameters = new PostParameters(body)
+    var incomingParameters: RequestParameters = new RequestParameters(body)
 
     incomingParameters.getParameter("firstname") shouldBe "Beppe"
 
@@ -23,7 +23,7 @@ class PostParametersTest extends FlatSpec with BeforeAndAfter {
 
   it should "be empty" in {
     val body = "dummy=1"
-    var incomingParameters: PostParameters = new PostParameters(body)
+    var incomingParameters: RequestParameters = new RequestParameters(body)
 
     incomingParameters.getParameter("firstname") shouldBe ""
 
@@ -31,7 +31,7 @@ class PostParametersTest extends FlatSpec with BeforeAndAfter {
 
   it should "be empty again" in {
     val body = ""
-    var incomingParameters: PostParameters = new PostParameters(body)
+    var incomingParameters: RequestParameters = new RequestParameters(body)
 
     incomingParameters.getParameter("firstname") shouldBe ""
 
