@@ -10,7 +10,6 @@ final case class AttachmentUrl(url: String)
 
 final case class QuickReplyContainer(text: String, quick_replies: List[QuickReplyOption])
 final case class QuickReplyOption(title: String, url: String, _type: String)
-//final case class QuickReply(quickReplies: List[QuickReplyOption])
 
 
 

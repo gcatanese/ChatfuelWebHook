@@ -69,26 +69,7 @@ class Server extends StrictLogging with ChatfuelAction with ChatfuelAttribute {
   implicit val implAttachmentContainer = jsonFormat1(AttachmentContainer)
   implicit val implMessagesWithAttachments = jsonFormat1(Messages[AttachmentContainer])
 
-  //implicit val implQuickReplyOption = jsonFormat3(QuickReplyOption)
-
-  implicit object implQuickReplyOption extends JsonFormat[QuickReplyOption] {
-
-    def write(c: QuickReplyOption) = JsObject(
-      "title" -> JsString(c.title),
-      "url" -> JsString(c.url),
-      "type" -> JsString(c._type))
-
-    def read(value: JsValue) = {
-      value.asJsObject.getFields("title", "url", "_type") match {
-        case Seq(JsString(title), JsString(url), JsString(_type)) =>
-          new QuickReplyOption(title, url, _type)
-        case _ => throw new DeserializationException("Tweets expected")
-      }
-    }
-  }
-
-
-  //implicit val implQuickReply = jsonFormat1(QuickReply)
+  implicit val implQuickReplyOption = jsonFormat3(QuickReplyOption)
   implicit val implQuickReplyContainer = jsonFormat2(QuickReplyContainer)
   implicit val implMessagesWithQuickReplies = jsonFormat1(Messages[QuickReplyContainer])
 
