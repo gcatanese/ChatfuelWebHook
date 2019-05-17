@@ -19,7 +19,7 @@ trait ChatfuelAttribute extends StrictLogging {
     var attribute = ""
 
     val incomingParameters: RequestParameters = new RequestParameters(body)
-    attribute = incomingParameters.getParameter("first+name")
+    attribute = incomingParameters.getParameter("firstname")
 
     attribute
   }
@@ -29,7 +29,7 @@ trait ChatfuelAttribute extends StrictLogging {
     var attribute = ""
 
     val incomingParameters: RequestParameters = new RequestParameters(body)
-    attribute = incomingParameters.getParameter("first+lastname")
+    attribute = incomingParameters.getParameter("lastname")
 
     attribute
   }

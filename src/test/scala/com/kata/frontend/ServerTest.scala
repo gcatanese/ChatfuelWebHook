@@ -2,32 +2,38 @@ package com.kata.frontend
 
 import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
 import Matchers._
-import akka.http.scaladsl.model.StatusCodes
+import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse, StatusCodes}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import akka.http.scaladsl.server._
 import Directives._
+import akka.http.scaladsl.unmarshalling.FromResponseUnmarshaller
+import com.kata.model.{Messages, QuickReplyContainer, QuickReplyOption}
+import com.typesafe.scalalogging.StrictLogging
+import spray.json.DefaultJsonProtocol.{jsonFormat1, jsonFormat2}
+import spray.json._
 
+import scala.concurrent.Await
 
-class ServerTest extends FlatSpec with BeforeAndAfter with ScalatestRouteTest {
+class ServerTest extends FlatSpec with BeforeAndAfter with ScalatestRouteTest with StrictLogging {
 
   var server = new Server
 
   "Get " should "be OK" in {
-      Get("/chatfuelWebHook?firstname=Beppe&lastname=Catanese") ~> server.route ~> check {
+    Get("/chatfuelWebHook?firstname=Beppe&lastname=Catanese") ~> server.route ~> check {
       responseAs[String] shouldEqual "GET OK"
     }
   }
 
   "Get without parameters" should "be OK" in {
-      Get("/chatfuelWebHook") ~> server.route ~> check {
-        responseAs[String] shouldEqual "GET OK"
-      }
+    Get("/chatfuelWebHook") ~> server.route ~> check {
+      responseAs[String] shouldEqual "GET OK"
+    }
   }
 
   "Post " should "be 2 text messages" in {
     val body = "firstname=Beppe&lastname=Catanese&last+user+freeform+input=Hi"
     Post("/chatfuelWebHook").withEntity(body) ~> server.route ~> check {
-      responseAs[String] shouldEqual "{\"messages\":[{\"text\":\"hello\"},{\"text\":\"ciao\"}]}"
+      responseAs[String] shouldEqual "{\"messages\":[{\"text\":\"hello Beppe\"},{\"text\":\"ciao Mr Catanese\"}]}"
     }
   }
 
@@ -56,6 +62,15 @@ class ServerTest extends FlatSpec with BeforeAndAfter with ScalatestRouteTest {
     val body = "firstname=Beppe&lastname=Catanese&last+user+freeform+input=File"
     Post("/chatfuelWebHook").withEntity(body) ~> server.route ~> check {
       responseAs[String] shouldEqual "{\"messages\":[{\"attachment\":{\"payload\":{\"url\":\"https://rockets.chatfuel.com/assets/ticket.pdf\"},\"type\":\"file\"}}]}"
+    }
+  }
+
+  it should "be a QUICK REPLY attachment" in {
+    val body = "firstname=Beppe&lastname=Catanese&last+user+freeform+input=Quick"
+    Post("/chatfuelWebHook").withEntity(body) ~> server.route ~> check {
+
+      responseAs[String].contains("\"text\":\"Did you like it\"") shouldEqual true
+      responseAs[String].contains("\"type\":\"json_plugin_url\"") shouldEqual true
     }
   }
 

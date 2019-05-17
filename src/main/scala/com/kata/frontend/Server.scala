@@ -1,6 +1,6 @@
 package com.kata.frontend
 
-import com.kata.model.{Attachment, AttachmentContainer, AttachmentUrl, ChatfuelAction, ChatfuelAttribute, Messages, TextMessage}
+import com.kata.model.{Attachment, AttachmentContainer, AttachmentUrl, ChatfuelAction, ChatfuelAttribute, Messages, QuickReplyContainer, QuickReplyOption, TextMessage}
 import com.typesafe.config.ConfigFactory
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity}
 
@@ -16,14 +16,13 @@ import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.Directives.{host, _}
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
-import spray.json.DefaultJsonProtocol._
 
 import scala.concurrent.Future
 import akka.http.scaladsl.model.headers._
 import akka.http.scaladsl.model._
 import com.typesafe.scalalogging.{Logger, StrictLogging}
-import spray.json._
-
+import spray.json.DefaultJsonProtocol._
+import spray.json.{DeserializationException, JsObject, JsString, JsValue, JsonFormat}
 
 
 class Server extends StrictLogging with ChatfuelAction with ChatfuelAttribute {
@@ -70,6 +69,29 @@ class Server extends StrictLogging with ChatfuelAction with ChatfuelAttribute {
   implicit val implAttachmentContainer = jsonFormat1(AttachmentContainer)
   implicit val implMessagesWithAttachments = jsonFormat1(Messages[AttachmentContainer])
 
+  //implicit val implQuickReplyOption = jsonFormat3(QuickReplyOption)
+
+  implicit object implQuickReplyOption extends JsonFormat[QuickReplyOption] {
+
+    def write(c: QuickReplyOption) = JsObject(
+      "title" -> JsString(c.title),
+      "url" -> JsString(c.url),
+      "type" -> JsString(c._type))
+
+    def read(value: JsValue) = {
+      value.asJsObject.getFields("title", "url", "_type") match {
+        case Seq(JsString(title), JsString(url), JsString(_type)) =>
+          new QuickReplyOption(title, url, _type)
+        case _ => throw new DeserializationException("Tweets expected")
+      }
+    }
+  }
+
+
+  //implicit val implQuickReply = jsonFormat1(QuickReply)
+  implicit val implQuickReplyContainer = jsonFormat2(QuickReplyContainer)
+  implicit val implMessagesWithQuickReplies = jsonFormat1(Messages[QuickReplyContainer])
+
   val pathStr = "chatfuelWebHook"
 
   def route = path(pathStr) {
@@ -81,7 +103,7 @@ class Server extends StrictLogging with ChatfuelAction with ChatfuelAttribute {
       }
     } ~
       post {
-        entity(as[String]) { payload =>
+          entity(as[String]) { payload =>
 
           implicit val body = payload
           logger.info("post: " + body)
@@ -113,6 +135,11 @@ class Server extends StrictLogging with ChatfuelAction with ChatfuelAttribute {
           } else if (userInput.equalsIgnoreCase("File")) {
 
             var messages = replyWithAttachments(Array[(String, String)](("file", "https://rockets.chatfuel.com/assets/ticket.pdf")))
+            complete(messages)
+
+          } else if (userInput.equalsIgnoreCase("Quick")) {
+
+            var messages = replyWithQuickReplies("Did you like it", Array[(String, String, String)](("Yes!", "https://rockets.chatfuel.com/api/sad-match", "json_plugin_url")))
             complete(messages)
 
           } else {
