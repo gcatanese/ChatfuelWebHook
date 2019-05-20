@@ -1,6 +1,6 @@
 package com.kata.frontend
 
-import com.kata.model.{Attachment, AttachmentContainer, AttachmentUrl, ChatfuelAction, ChatfuelAttribute, Messages, QuickReplyContainer, QuickReplyOption, TextMessage}
+import com.kata.model.{Attachment, AttachmentContainer, AttachmentUrl, ChatfuelAction, ChatfuelAttribute, Messages, QuickReplyContainer, QuickReplyOption, QuickReplyOptionWithBlocks, TextMessage}
 import com.typesafe.config.ConfigFactory
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity}
 
@@ -67,11 +67,15 @@ class Server extends StrictLogging with ChatfuelAction with ChatfuelAttribute {
   implicit val implAttachmentUrl = jsonFormat1(AttachmentUrl)
   implicit val implAttachment = jsonFormat2(Attachment)
   implicit val implAttachmentContainer = jsonFormat1(AttachmentContainer)
+
   implicit val implMessagesWithAttachments = jsonFormat1(Messages[AttachmentContainer])
 
   implicit val implQuickReplyOption = jsonFormat3(QuickReplyOption)
-  implicit val implQuickReplyContainer = jsonFormat2(QuickReplyContainer)
-  implicit val implMessagesWithQuickReplies = jsonFormat1(Messages[QuickReplyContainer])
+  implicit val implQuickReplyOptionWithBlocks = jsonFormat2(QuickReplyOptionWithBlocks)
+  implicit val implQuickReplyContainer = jsonFormat2(QuickReplyContainer[List[QuickReplyOption]])
+  implicit val implMessagesWithQuickReplies = jsonFormat1(Messages[QuickReplyContainer[List[QuickReplyOption]]])
+  implicit val implQuickReplyContainer2 = jsonFormat2(QuickReplyContainer[List[QuickReplyOptionWithBlocks]])
+  implicit val implMessagesWithQuickReplies2 = jsonFormat1(Messages[QuickReplyContainer[List[QuickReplyOptionWithBlocks]]])
 
   val pathStr = "chatfuelWebHook"
 
@@ -121,6 +125,13 @@ class Server extends StrictLogging with ChatfuelAction with ChatfuelAttribute {
           } else if (userInput.equalsIgnoreCase("Quick")) {
 
             var messages = replyWithQuickReplies("Did you like it", Array[(String, String, String)](("Yes!", "https://rockets.chatfuel.com/api/sad-match", "json_plugin_url")))
+
+            complete(messages)
+
+          } else if (userInput.equalsIgnoreCase("Quick2")) {
+
+            var list = List[String]("BL1");
+            var messages = replyWithQuickReplies("Did you like it", Array[(String, List[String])](("Yes!", list)))
             complete(messages)
 
           } else {

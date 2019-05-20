@@ -65,14 +65,22 @@ class ServerTest extends FlatSpec with BeforeAndAfter with ScalatestRouteTest wi
     }
   }
 
-  it should "be a QUICK REPLY attachment" in {
+  it should "be a QUICK REPLY " in {
     val body = "firstname=Beppe&lastname=Catanese&last+user+freeform+input=Quick"
     Post("/chatfuelWebHook").withEntity(body) ~> server.route ~> check {
 
       responseAs[String].contains("\"text\":\"Did you like it\"") shouldEqual true
-      responseAs[String].contains("\"type\":\"json_plugin_url\"") shouldEqual true
+      responseAs[String].contains("\"_type\":\"json_plugin_url\"") shouldEqual true
     }
   }
 
+  it should "be a QUICK REPLY WITH BLOCK" in {
+    val body = "firstname=Beppe&lastname=Catanese&last+user+freeform+input=Quick2"
+    Post("/chatfuelWebHook").withEntity(body) ~> server.route ~> check {
+
+      responseAs[String].contains("\"text\":\"Did you like it\"") shouldEqual true
+      responseAs[String].contains("\"block_names\":[\"BL1\"]") shouldEqual true
+    }
+  }
 
 }

@@ -19,12 +19,16 @@ trait ChatfuelAction extends StrictLogging {
     new Messages[AttachmentContainer](attachments.map((x => new AttachmentContainer(new Attachment(x._1, new AttachmentUrl(x._2))))))
   }
 
-  def replyWithQuickReplies(implicit text: String, quickReplies: Array[(String, String, String)]): Messages[QuickReplyContainer] = {
+  def replyWithQuickReplies(implicit text: String, quickReplies: Array[(String, String, String)]): Messages[QuickReplyContainer[List[QuickReplyOption]]] = {
     val list = quickReplies.map(x => new QuickReplyOption(x._1, x._2, x._3)).toList
-    //new Messages[QuickReplyContainer](quickReplies.map((x => new QuickReplyContainer(text, list))))
 
-    new Messages[QuickReplyContainer](Array[QuickReplyContainer](new QuickReplyContainer(text, list)))
+    new Messages[QuickReplyContainer[List[QuickReplyOption]]](Array[QuickReplyContainer[List[QuickReplyOption]]](new QuickReplyContainer(text, list)))
   }
 
+  def replyWithQuickReplies(implicit text: String, quickReplies: Array[(String, List[String])]): Messages[QuickReplyContainer[List[QuickReplyOptionWithBlocks]]] = {
+    val list = quickReplies.map(x => new QuickReplyOptionWithBlocks(x._1, x._2)).toList
+
+    new Messages[QuickReplyContainer[List[QuickReplyOptionWithBlocks]]](Array[QuickReplyContainer[List[QuickReplyOptionWithBlocks]]](new QuickReplyContainer(text, list)))
+  }
 
 }
