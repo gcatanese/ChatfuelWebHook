@@ -1,6 +1,6 @@
 package com.kata.frontend
 
-import com.kata.model.{Attachment, AttachmentContainer, AttachmentUrl, ChatfuelAction, ChatfuelAttribute, Messages, QuickReplyContainer, QuickReplyOption, QuickReplyOptionWithBlocks, TextMessage}
+import com.kata.model.{Attachment, AttachmentContainer, AttachmentUrl, Button, ChatfuelAction, ChatfuelAttribute, Element, Gallery, GalleryContainer, GalleryPayload, ListContainer, ListItem, ListPayload, Messages, QuickReplyContainer, QuickReplyOption, QuickReplyOptionWithType, TextMessage}
 import com.typesafe.config.ConfigFactory
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity}
 
@@ -70,12 +70,25 @@ class Server extends StrictLogging with ChatfuelAction with ChatfuelAttribute {
 
   implicit val implMessagesWithAttachments = jsonFormat1(Messages[AttachmentContainer])
 
-  implicit val implQuickReplyOption = jsonFormat3(QuickReplyOption)
-  implicit val implQuickReplyOptionWithBlocks = jsonFormat2(QuickReplyOptionWithBlocks)
-  implicit val implQuickReplyContainer = jsonFormat2(QuickReplyContainer[List[QuickReplyOption]])
-  implicit val implMessagesWithQuickReplies = jsonFormat1(Messages[QuickReplyContainer[List[QuickReplyOption]]])
-  implicit val implQuickReplyContainer2 = jsonFormat2(QuickReplyContainer[List[QuickReplyOptionWithBlocks]])
-  implicit val implMessagesWithQuickReplies2 = jsonFormat1(Messages[QuickReplyContainer[List[QuickReplyOptionWithBlocks]]])
+  implicit val implQuickReplyOptionWithType = jsonFormat3(QuickReplyOptionWithType)
+  implicit val implQuickReplyOption = jsonFormat2(QuickReplyOption)
+  implicit val implQuickReplyContainer = jsonFormat2(QuickReplyContainer[List[QuickReplyOptionWithType]])
+  implicit val implMessagesWithQuickReplies = jsonFormat1(Messages[QuickReplyContainer[List[QuickReplyOptionWithType]]])
+  implicit val implQuickReplyContainer2 = jsonFormat2(QuickReplyContainer[List[QuickReplyOption]])
+  implicit val implMessagesWithQuickReplies2 = jsonFormat1(Messages[QuickReplyContainer[List[QuickReplyOption]]])
+
+  implicit val implButton = jsonFormat3(Button)
+  implicit val implElement = jsonFormat4(Element)
+
+  implicit val implGalleryPayload = jsonFormat3(GalleryPayload)
+  implicit val implGallery = jsonFormat2(Gallery)
+  implicit val implGalleryContainer = jsonFormat1(GalleryContainer)
+  implicit val implMessagesWithGalleries = jsonFormat1(Messages[GalleryContainer])
+
+  implicit val implListPayload = jsonFormat3(ListPayload)
+  implicit val implList = jsonFormat2(ListItem)
+  implicit val implListContainer = jsonFormat1(ListContainer)
+  implicit val implMessagesWithLists = jsonFormat1(Messages[ListContainer])
 
   val pathStr = "chatfuelWebHook"
 
@@ -132,6 +145,28 @@ class Server extends StrictLogging with ChatfuelAction with ChatfuelAttribute {
 
             var list = List[String]("BL1");
             var messages = replyWithQuickReplies("Did you like it", Array[(String, List[String])](("Yes!", list)))
+            complete(messages)
+
+          } else if (userInput.equalsIgnoreCase("Gallery")) {
+
+            var bt1 = Button("web_url", "https://rockets.chatfuel.com/store", "View Item")
+            var element1 = Element("Chatfuel Rockets Jersey", "https://rockets.chatfuel.com/assets/shirt.jpg", "Size: M", List[Button](bt1))
+            var galleryPayload = GalleryPayload("generic", "square", List[Element](element1))
+            var gallery = Gallery("template", galleryPayload)
+
+            var messages = replyWithGalleries(GalleryContainer(gallery))
+
+            complete(messages)
+
+          } else if (userInput.equalsIgnoreCase("List")) {
+
+            var bt1 = Button("web_url", "https://rockets.chatfuel.com/store", "View Item")
+            var element1 = Element("Chatfuel Rockets Jersey", "https://rockets.chatfuel.com/assets/shirt.jpg", "Size: M", List[Button](bt1))
+            var listPayload = ListPayload("list", "large", List[Element](element1))
+            var list = ListItem("template", listPayload)
+
+            var messages = replyWithLists(ListContainer(list))
+
             complete(messages)
 
           } else {

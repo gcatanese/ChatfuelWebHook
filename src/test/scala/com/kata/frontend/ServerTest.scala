@@ -83,4 +83,28 @@ class ServerTest extends FlatSpec with BeforeAndAfter with ScalatestRouteTest wi
     }
   }
 
+  it should "be a GALLERY" in {
+    val body = "firstname=Beppe&lastname=Catanese&last+user+freeform+input=Gallery"
+    Post("/chatfuelWebHook").withEntity(body) ~> server.route ~> check {
+
+      logger.info(responseAs[String])
+
+      responseAs[String].contains("\"type\":\"template\"") shouldEqual true
+      responseAs[String].contains("\"template_type\":\"generic\"") shouldEqual true
+      responseAs[String].contains("\"title\":\"Chatfuel Rockets Jersey\"") shouldEqual true
+    }
+  }
+
+  it should "be a LIST" in {
+    val body = "firstname=Beppe&lastname=Catanese&last+user+freeform+input=List"
+    Post("/chatfuelWebHook").withEntity(body) ~> server.route ~> check {
+
+      logger.info(responseAs[String])
+
+      responseAs[String].contains("\"type\":\"template\"") shouldEqual true
+      responseAs[String].contains("\"template_type\":\"list\"") shouldEqual true
+    }
+  }
+
+
 }
