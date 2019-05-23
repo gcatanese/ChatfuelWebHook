@@ -1,19 +1,13 @@
 package com.kata.frontend
 
-import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
-import Matchers._
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse, StatusCodes}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
-import akka.http.scaladsl.server._
-import Directives._
-import akka.http.scaladsl.unmarshalling.FromResponseUnmarshaller
-import com.kata.model.{Messages, QuickReplyContainer, QuickReplyOption}
 import com.typesafe.scalalogging.StrictLogging
-import spray.json.DefaultJsonProtocol.{jsonFormat1, jsonFormat2}
-import spray.json._
+import org.scalatest.Matchers._
+import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
 
-import scala.concurrent.Await
-
+/**
+  * Testing HTTP GET/POST responses
+  */
 class ServerTest extends FlatSpec with BeforeAndAfter with ScalatestRouteTest with StrictLogging {
 
   var server = new Server
