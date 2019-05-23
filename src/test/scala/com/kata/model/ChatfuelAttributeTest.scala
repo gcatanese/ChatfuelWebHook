@@ -3,7 +3,7 @@ package com.kata.model
 import org.scalatest.Matchers._
 import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
 
-class RequestParametersTest extends FlatSpec with ChatfuelAttribute {
+class ChatfuelAttributeTest extends FlatSpec with ChatfuelAttribute {
 
   "Map " should "contain 3 elements" in {
     val body = "firstname=Beppe&lastname=Catanese&last+user+freeform+input=File"
@@ -34,6 +34,20 @@ class RequestParametersTest extends FlatSpec with ChatfuelAttribute {
     var incomingParameters: RequestParameters = new RequestParameters(body)
 
     incomingParameters.getParameter("firstname") shouldBe ""
+
+  }
+
+  "Userinput " should "be Ciao" in {
+    val body = "firstname=Beppe&lastname=Catanese&last+user+freeform+input=Ciao"
+
+    getUserInput(body) shouldBe "Ciao"
+
+  }
+
+  "Session " should "be empty" in {
+    val body = "firstname=Beppe&lastname=Catanese&last+user+freeform+input=Ciao"
+
+    getSessions(body) shouldBe ""
 
   }
 
