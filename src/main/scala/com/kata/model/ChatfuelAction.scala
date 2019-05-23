@@ -1,8 +1,5 @@
 package com.kata.model
 
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity}
-import akka.http.scaladsl.server.Directives.{complete, get, parameterSeq, path}
-import akka.http.scaladsl.server.{PathMatcher, Route}
 import com.typesafe.scalalogging.StrictLogging
 
 trait ChatfuelAction extends StrictLogging {
