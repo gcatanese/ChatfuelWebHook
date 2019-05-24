@@ -8,7 +8,7 @@ Build library
 sbt publishLocal
 ```
 
-Code snippet (or see unit testing adn the example)
+Code snippet (also see unit testing and 'sister' app ChatfuelWebHookExample)
 ```scala
 val userInput = getUserInput
 
